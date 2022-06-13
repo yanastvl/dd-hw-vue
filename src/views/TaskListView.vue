@@ -18,10 +18,14 @@
 							{label: 'Ошибка', name: 'bug'}
 						]">
 						</Dropdown>
-						<div class="dropdown__toggle-task input__empty">
-							<Input type="text" placeholder="Название задачи" name="query"></Input>
+						<div :class="`dropdown__toggle-task ${!query ? 'input__empty' : 'input__default'}`">
+							<Input 
+								type="text" 
+								placeholder="Название задачи" 
+								name="query" 
+								v-model="query"></Input>
 						</div>
-						<Dropdown label="Пользователь" dropdownType="user" :users="allUsers"></Dropdown>
+						<Dropdown label="Пользователь" dropdownType="user" :optionsArray="optionsForUsers" @checkedValues="checkedValues"></Dropdown>
 						<Dropdown label="Статус" dropdownType="status" :optionsArray="[
 							{label: 'Открыто', name: 'opened'}, 
 							{label: 'В работе', name: 'inProgress'},
@@ -42,7 +46,7 @@
 				<div class="task__list-window">
 					<TaskListItem v-for="task in tasks.data" :key="task.id" :task="task" :users="allUsers" :filter="filter" :hasDropdown="true"></TaskListItem>
 				</div>
-				<Paging :allObjectsNum="tasksTotal" @currentPage="currentPage"></Paging>
+				<Paging :allObjectsNum="tasksTotal" @setCurrentPage="setCurrentPage" :pageFromFilter="currentPage"></Paging>
 				</div>
 			</section>
 	</section>
@@ -50,7 +54,6 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-// import { baseFilter } from '../api/service/events.service';
 
 import Button from "../components/Button.vue";
 import Input from "../components/Input.vue";
@@ -72,6 +75,8 @@ export default {
 				"page": 0,
 				"limit": 10
 			},
+			query: '',
+			checkedUsers: []
 		}
     },
 	computed: {
@@ -80,6 +85,19 @@ export default {
 			get() {
 				return this.filters[this.activeTab] || this.filter
 			},
+		},
+		currentPage: {
+			get() {
+				return this.filter.page + 1
+			},
+			set(page) {
+				this.filter.page = page - 1
+			}
+		},
+		optionsForUsers() {
+			return this.allUsers.map(user => (
+				{label: user.username, value: user.id}
+			));
 		}
 	},
 	mounted() {
@@ -94,18 +112,21 @@ export default {
 	},
 	methods: {
 		...mapActions(['setLoading', 'fetchTasks', 'fetchUsers', 'fetchAllUsers', 'setFilters', 'setActiveTab']),
-		currentPage(page) {
-			this.filter.page = page - 1;
+		setCurrentPage(page) {
+			this.currentPage = page;
 			this.fetchTasks(this.filter);
+		},
+		checkedValues(values) {
+			this.checkedUsers = values;
 		},
 		handleSubmit(e) {
 			e.preventDefault();
 			const target = e.target;
-			const checkedUsers = document.querySelectorAll('input[class="checkbox-default user"]:checked');
-        	const assignedUsers = Array.from(checkedUsers).map(user => user.value);
+
+        	const assignedUsers = Array.from(this.checkedUsers).map(value => value);
 
 			this.filter.filter = {
-				"query": target.query.value,
+				"query": this.query,
 				"assignedUsers": assignedUsers,
 				"type": [
 					target.task.checked ? target.task.name : null,

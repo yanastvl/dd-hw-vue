@@ -2,7 +2,6 @@
 	<div>
 		Страница не найдена
         <router-link :to="taskList">Перейти на главную</router-link>
-		<router-view></router-view>
 	</div>
 </template>
 

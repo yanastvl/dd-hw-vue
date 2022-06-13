@@ -1,12 +1,19 @@
 <template>
     <label>
-        <input type="checkbox" :class="`checkbox-default ${isUser && 'user'}`" :name="name" :value="value"/> {{ label }}
+        <input type="checkbox" :class="`checkbox-default`" :name="name" :value="value" @change="updateInput"/> {{ label }}
     </label>
 </template>
 
 <script>
 export default {
-    props: ['name', 'value', 'label', 'isUser']
+    props: ['name', 'value', 'label'],
+    methods: {
+        updateInput(e) {
+            if (e.target.checked) {
+                this.$emit('checked', e.target.value);
+            }
+        }
+    }
 }
 </script>
 

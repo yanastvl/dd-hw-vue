@@ -7,37 +7,39 @@
                     </h2>
                     <div class="authorization__input-inner">
                         <label htmlFor="login" class="authorization__input-text">Логин</label>
-                        <input 
+                        <Input 
                             type="text" 
                             :class="`authorization__input-input ${!login ? 'input__empty' : 'input__default'} ${error && 'input__error'}`"
                             name="login" 
                             v-model="login"
-                            @change="handleChange"
+                            @error="setError"
                             required
-                        >
+                        ></Input>
                     </div>
                     <div class="authorization__input-inner authorization__password">
                         <label htmlFor="login" class="authorization__input-text">Пароль</label>
-                        <input 
+                        <Input 
                             type="password" 
                             :class="`authorization__input-input ${!password ? 'input__empty' : 'input__default'} ${error && 'input__error'}`"
                             name="password" 
                             v-model="password"
-                            @change="handleChange"
+                            @error="setError"
                             required
-                        >
+                        ></Input>
                     </div>
                     <div :class="`authorization-error ${!error && 'hidden'}`">{{ errorMessage }}</div>
                     <div class="authorization__button-inner">
-                        <button class="authorization__input-button success-button">Вход</button></div>
+                        <Button class="authorization__input-button success-button">Вход</Button></div>
                 </div>
             </form>
         </section>
 </template>
 
 <script>
-import { global } from '../entry.js';
-import api from '@/api'
+import { mapGetters, mapActions } from 'vuex';
+
+import Input from "../components/Input.vue";
+import Button from "../components/Button.vue";
 
 export default ({
     data() {
@@ -50,26 +52,28 @@ export default ({
         }
     },
     methods: {
-        handleChange() {
+        ...mapActions(['setCurrentUser']),
+        setError() {
             this.error = false;
         },
         handleSubmit(e) {
             e.preventDefault();
-            api.Auth.login({
+            this.$api.Auth.login({
                 login: this.login,
                 password: this.password
             }
             ).then((response) => {
                 const user = JSON.stringify(response);
                 localStorage.setItem('user', user);
-                global.$emit('setUser', user);
+                this.setCurrentUser(response);
                 this.$router.push({name: "TaskListView"});
             }, () => {
                 this.errorMessage = "Неправильный логин или пароль";
                 this.error = true;
             });
         }
-    }
+    },
+    components: { Input, Button }
 })
 </script>
 

@@ -5,16 +5,9 @@
                 <span class="dropdown__toggle-text ">{{ label }}</span>  
             </div>
             <ul class="dropdown__toggle-menu">
-                <span v-if="optionsArray">
-                    <li v-for="option in optionsArray" :key="option.name">
-                        <Checkbox :name="option.name" :value="option.value" :label="option.label"></Checkbox>
-                    </li>
-                </span>
-                <span v-else>
-                    <li v-for="user in users" :key="user.id">
-                        <Checkbox :value="user.id" :label="user.username" :isUser="true"></Checkbox>
-                    </li>
-                </span>
+                <li v-for="option in optionsArray" :key="option.name">
+                    <Checkbox :name="option.name" :value="option.value" :label="option.label" @checked="checked"></Checkbox>
+                </li>
             </ul>
         </div>
     </div>
@@ -26,30 +19,20 @@ import Checkbox from "./Checkbox.vue";
 export default {
     data() {
         return {
-            currentPage: 1
+            checkedValues: []
         };
     },
-    props: {
-        "label": {
-            type: String,
-            required: true
-        },
-        "dropdownType": {
-            type: String,
-            required: true
-        },
-        "optionsArray": {
-            type: Array
-        },
-        "users": {
-            type: Array
-        }
-    },
+    props: ['label', 'dropdownType', 'optionsArray'],
     methods: {
+        checked(checkedValue) {
+            this.checkedValues.push(checkedValue);
+            this.$emit("checkedValues", this.checkedValues);
+		},
         toggle: function (e) {
             const dropdowns = document.querySelectorAll(".dropdown__outer");
             const dropdown = e.currentTarget;
-            window.onclick = function (e) {
+
+            const dropdownListener = (e) => {
                 if (e.target != dropdown) {
                     dropdowns.forEach((dropdown) => {
                         dropdown.children[0].classList.remove("dropdown__toggle");
@@ -58,7 +41,10 @@ export default {
                         dropdown.children[0].children[1].classList.remove("is-active");
                     });
                 }
-            };
+                window.removeEventListener('click', dropdownListener);
+            }
+            window.addEventListener('click', dropdownListener);
+
             const withinBoundaries = e.composedPath().includes(dropdown);
             if (withinBoundaries) {
                 e.stopPropagation();

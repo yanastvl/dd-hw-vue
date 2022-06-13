@@ -28,7 +28,7 @@
                     <div class="task__page-inner">
                         <TaskListItem v-for="task in tasks.data" :key="task.id" :task="task"></TaskListItem>
                     </div>
-                    <Paging :allObjectsNum="tasksTotal" @currentPage="currentPage"></Paging>
+                    <Paging :allObjectsNum="tasksTotal" @setCurrentPage="setCurrentPage" :pageFromFilter="currentPage"></Paging>
                 </div>
             </div>
         </div>
@@ -43,32 +43,30 @@
             <form @submit="handleSubmit">
                 <div class="modal-body">
                     <div class="authorization__input-inner">
-                    <label htmlFor="name" class="authorization__input-text">Имя пользователя</label>
-                    <input 
-                        type="text" 
-                        :class="`authorization__input-input ${!username ? 'input__empty' : 'input__default'}`"
-                        v-model="username"
-                        placeholder="username"
-                        required
+                        <label htmlFor="name" class="authorization__input-text">Имя пользователя</label>
+                        <Input 
+                            type="text" 
+                            :class="`authorization__input-input ${!username ? 'input__empty' : 'input__default'}`"
+                            v-model="username"
+                            required
                         />
                     </div>
                     <div class="authorization__input-inner">
                         <label htmlFor="url" class="authorization__input-text">URL фотографии</label>
-                        <input 
+                        <Input 
                             type="text" 
                             :class="`authorization__input-input ${!photoUrl ? 'input__empty' : 'input__default'}`" 
                             v-model="photoUrl"
-                            placeholder="Введите URL"
                             required
-                            />
-                        </div>
+                        />
+                    </div>
                         <div class="authorization__input-inner">
                             <label htmlFor="textarea" class="authorization__input-text">О себе</label>
-                            <textarea 
+                            <Textarea 
                                 :class="`modal__textarea ${!about ? 'input__empty' : 'input__default'}`"
                                 v-model="about"
                                 required
-                                ></textarea>
+                                ></Textarea>
                         </div>
                 </div>
 
@@ -85,12 +83,12 @@
 </template>
 
 <script>
-import api from '@/api'
 import CardHeader from '../components/CardHeader.vue';
 import TaskListItem from '../components/TaskListItem.vue';
 import { mapGetters, mapActions } from 'vuex';
-// import { baseFilter } from '../api/service/events.service';
 import Button from '../components/Button.vue';
+import Input from '../components/Input.vue';
+import Textarea from '../components/Textarea.vue';
 
 export default {
     data () {
@@ -123,6 +121,14 @@ export default {
         isCurrentUser() {
             return this.user.id === this.currentUser.id;
         },
+        currentPage: {
+			get() {
+				return this.filter.page + 1
+			},
+			set(page) {
+				this.filter.page = page - 1
+			}
+		},
         getFilter: {
 			get() {
 				return this.filters[this.activeTab] || this.filter
@@ -131,12 +137,12 @@ export default {
 	},
     methods: {
 		...mapActions(['fetchTasks', 'setActiveTab', 'setFilters']),
-        currentPage(page) {
-            this.filter.page = page - 1;
+        setCurrentPage(page) {
+            this.currentPage = page;
             this.fetchTasks(this.filter);
         },
         getUser() {
-            api.Users.getUser(this.$props.id).then(({data}) => {
+            this.$api.Users.getUser(this.$props.id).then(({data}) => {
                 this.user = data;
                 this.username = data.username;
                 this.about = data.about;
@@ -162,13 +168,13 @@ export default {
                 about: this.about,
                 photoUrl: this.photoUrl
             };
-            api.Users.editUser(data).then(({data}) => {
+            this.$api.Users.editUser(data).then(({data}) => {
                 this.user = data;
                 this.toggleModal(e);
             });
         },
     },
-    components: { CardHeader, TaskListItem, Button, Button }
+    components: { CardHeader, TaskListItem, Button, Button, Input, Textarea }
 }
 </script>
 

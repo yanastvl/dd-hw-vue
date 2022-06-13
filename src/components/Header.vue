@@ -6,8 +6,8 @@
             </router-link>
 
             <div :class="`header-nav ${!user && 'hidden'}`">
-                <router-link :to="taskList" :class="`nav__link ${this.$route.name === taskList.name && 'nav__link-active'}`">Задачи</router-link>
-                <router-link :to="userList" :class="`nav__link ${this.$route.name === userList.name && 'nav__link-active'}`">Пользователи</router-link>
+                <router-link :to="taskList" :class="`nav__link ${isLinkActive(taskList) && 'nav__link-active'}`">Задачи</router-link>
+                <router-link :to="userList" :class="`nav__link ${isLinkActive(userList) && 'nav__link-active'}`">Пользователи</router-link>
             </div>
 
             <div :class="`user-profile ${!user && 'hidden'}`">
@@ -31,32 +31,35 @@
                       </button>
                     </div>
             </div>
-            <!-- <router-view></router-view> -->
         </div>
     </section>
 </template>
 
 <script>
-import { global } from '../entry.js';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
     data() {
         return {
             taskList: { name: "TaskListView" },
             userList: { name: "UserListView" },
-            user: JSON.parse(localStorage.getItem('user')),
             logo: require('../assets/images/Logo.svg'),
         }
     },
     created() {
-      global.$on('setUser', user => {
-        this.user = JSON.parse(user);
-      })
+      this.setCurrentUser(JSON.parse(localStorage.getItem('user')));
+    },
+    computed: {
+      ...mapGetters(['user']),
+      isLinkActive() {
+        return path => this.$route.name === path.name
+      }
     },
     methods: {
+      ...mapActions(['setCurrentUser']),
       logout() {
         localStorage.removeItem('user');
-        this.user = null;
+        this.setCurrentUser();
         this.$router.push({name: "LoginView"});
       },
     },

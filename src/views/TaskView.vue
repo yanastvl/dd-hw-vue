@@ -76,11 +76,11 @@
                 <div class="task-inner"> 
                     <p class="task-label">Комментарии ({{ comments.length }})</p>
                         <form @submit="handleSubmit">
-                            <textarea 
+                            <Textarea 
                                 :class="`form__textarea  ${comment ? 'input__default' : 'input__empty'}`"
                                 v-model="comment"
                                 required
-                            ></textarea>
+                            ></Textarea>
                             <button class="success-button" type="submit">Добавить комментарий</button>
                         </form>
                 </div>
@@ -107,35 +107,33 @@
                     <div class="modal-body">
                         <div class="authorization__input-inner">
                         <label htmlFor="name" class="authorization__input-text">Затраченное время</label>
-                        <input 
-                        type="number" 
-                        min="0"
-                        :class="`authorization__input-input ${time ? 'input__default' : 'input__empty'}`"
-                        v-model="time"
-                        required
+                        <Input 
+                            type="number" 
+                            min="0"
+                            :class="`authorization__input-input ${time ? 'input__default' : 'input__empty'}`"
+                            v-model="time"
+                            required
                         />
                         </div>
 
                         <div class="authorization__input-inner">
                             <label htmlFor="name" class="authorization__input-text">Единица измерения</label>
-                            <select class="task-select input__default capet-down"
-                                v-model="timeFormat"
-                                @blur="closeDropdown"
-                                @click="toggleDropdown">
-                                    <option value="day">День</option>
-                                    <option value="hour">Час</option>
-                                    <option value="minutes">Минута</option>
-                            </select>
+                            <Select v-model="timeFormat" :optionsArray="[
+                                    {text: 'День', value: 'day'},
+                                    {text: 'Час', value: 'hour'},
+                                    {text: 'Минута', value: 'minutes'},
+                                ]">
+                            </Select>
                         </div>
 
                         <div class="authorization__input-inner">
                             <div  class="authorization__input-form" >
                                 <label htmlFor="textarea" class="authorization__input-text">Комментарий</label>
-                                    <textarea 
+                                    <Textarea 
                                     :class="`modal__textarea ${modalComment ? 'input__default' : 'input__empty'}`"
                                     v-model="modalComment"
                                     required
-                                    ></textarea>
+                                    ></Textarea>
                             </div>
                         </div>
                             
@@ -154,12 +152,13 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import api from '@/api';
 import moment from 'moment';
 import { RankMap, TaskMap, StatusMap } from '../utils/tasks-mapping';
 import { closeDropdown, toggleDropdown } from '../utils/capet-actions.js';
 import Button from "../components/Button.vue";
 import CardHeader from "../components/CardHeader.vue";
+import Input from "../components/Input.vue";
+import Select from "../components/Select.vue";
 
 export default {
     data() {
@@ -221,12 +220,12 @@ export default {
     mounted() {
         this.fetchComments(this.$props.id);
         this.fetchAllUsers();
-        api.Tasks.getTask(this.$props.id).then(({data}) => {
+        this.$api.Tasks.getTask(this.$props.id).then(({data}) => {
             this.task = data;
-            api.Users.getUser(data.userId).then((user) => {
+            this.$api.Users.getUser(data.userId).then((user) => {
                 this.user = user.data;
             })
-            api.Users.getUser(data.assignedId).then((user) => {
+            this.$api.Users.getUser(data.assignedId).then((user) => {
                 this.assignedUser = user.data;
             })
         })
@@ -234,12 +233,12 @@ export default {
     methods: {
         ...mapActions(['fetchAllUsers', 'fetchComments']),
         updateTaskStatus(taskId, status) {
-            api.Tasks.patchTaskStatus(taskId, status).then(({data}) => {
+            this.$api.Tasks.patchTaskStatus(taskId, status).then(({data}) => {
                 this.task = data;
             });
         },
         deleteTask(taskId) {
-            api.Tasks.deleteTask(taskId).then(() => {
+            this.$api.Tasks.deleteTask(taskId).then(() => {
                 this.$router.push({name: "TaskListView"});
             });
         },
@@ -251,7 +250,7 @@ export default {
                 text: this.comment
             };
             this.comment = "";
-            api.Comments.addComment(data).then(() => {
+            this.$api.Comments.addComment(data).then(() => {
                 this.fetchComments(this.task.id);
             });
         },
@@ -263,7 +262,7 @@ export default {
                 comment: this.modalComment,
                 currentUser: this.currentUser.id,
             }
-            api.Tasks.patchTaskWorktime(this.task.id, data).then(({data}) => {
+            this.$api.Tasks.patchTaskWorktime(this.task.id, data).then(({data}) => {
                 this.fetchComments(this.task.id);
                 this.task = data.task;
                 this.toggleModal(e);
@@ -271,7 +270,7 @@ export default {
             });
         },
         deleteComment(commentId) {
-            api.Comments.deleteComment(commentId).then(() => {
+            this.$api.Comments.deleteComment(commentId).then(() => {
                 this.fetchComments(this.task.id);
             });
         },
@@ -294,7 +293,7 @@ export default {
             toggleDropdown(e)
         }
     },
-    components: { Button, CardHeader }
+    components: { Button, CardHeader, Input, Select }
 }
 </script>
 

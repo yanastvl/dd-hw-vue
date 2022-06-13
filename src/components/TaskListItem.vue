@@ -38,13 +38,7 @@
                 </button>
             </div>
             
-            <button v-if="hasDropdown" class="dropdown__toggle-button user__list-more" @click.prevent="toggleDropdown">
-                <svg class="burger-button" width="20" height="20" viewBox="0 0 20 20" fill="" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 5C5 4.44772 5.44772 4 6 4H14C14.5523 4 15 4.44772 15 5C15 5.55228 14.5523 6 14 6H6C5.44772 6 5 5.55228 5 5Z" fill=""/>
-                    <path d="M5 10C5 9.44772 5.44772 9 6 9H14C14.5523 9 15 9.44772 15 10C15 10.5523 14.5523 11 14 11H6C5.44772 11 5 10.5523 5 10Z" fill=""/>
-                    <path d="M5 15C5 14.4477 5.44772 14 6 14H14C14.5523 14 15 14.4477 15 15C15 15.5523 14.5523 16 14 16H6C5.44772 16 5 15.5523 5 15Z" fill=""/>
-                </svg>
-                        
+            <DropdownButton v-if="hasDropdown">
                                     <ul class="dropdown__toggle-popup menu-button">
                                         <li class="dropdown-input li-button">
                                             <router-link :to="{name: 'TaskAddOrEditView', params: { id: taskComp.id }}">
@@ -72,8 +66,7 @@
                                             <a class="dropdown-link">Готово</a>
                                         </li>
                                     </ul>
-                             
-            </button>
+            </DropdownButton>
         </div>
     </div>
 </template>
@@ -81,39 +74,24 @@
 <script>
 import { StatusMap, RankMap } from '../utils/tasks-mapping';
 import { mapGetters, mapActions } from 'vuex';
-import api from '@/api';
+import DropdownButton from './DropdownButton.vue';
 
 export default {
     data() {
         return {
             statusMap: StatusMap,
-            rankMap: RankMap,
-            state: false
+            rankMap: RankMap
         };
     },
     computed: {
-        taskComp: { 
-            get() { return this.$props.task },
-            set(val) { return val } 
+        taskComp: {
+            get() { return this.task; },
+            set(val) { return val; }
         }
     },
-    mounted() {
-        document.addEventListener('click', this.close);
-    },
-    beforeDestroy () {
-        document.removeEventListener('click', this.close)
-    },
-    props: ['task', 'users', 'filter', 'hasDropdown'],
+    props: ["task", "users", "filter", "hasDropdown"],
     methods: {
-        ...mapActions(['setLoading', 'fetchTasks', 'fetchUsers', 'fetchAllUsers']),
-        toggleDropdown (e) {
-            e.currentTarget.classList.toggle('is-active');
-        },
-        close (e) {
-            if (!this.$el.contains(e.target) && this.$props.hasDropdown) {
-                this.$el.getElementsByClassName('dropdown__toggle-button')[0].classList.remove('is-active');
-            }
-        },
+        ...mapActions(["setLoading", "fetchTasks", "fetchUsers", "fetchAllUsers"]),
         getUserName(taskAssignedId) {
             if (this.users) {
                 const user = this.users.find(user => user.id === taskAssignedId);
@@ -123,17 +101,18 @@ export default {
             }
         },
         deleteTask(taskId) {
-            api.Tasks.deleteTask(taskId).then(() => {
+            this.$api.Tasks.deleteTask(taskId).then(() => {
                 this.fetchTasks(this.$props.filter);
             });
         },
         updateTaskStatus(taskId, status) {
-            api.Tasks.patchTaskStatus(taskId, status).then(({data}) => {
+            this.$api.Tasks.patchTaskStatus(taskId, status).then(({ data }) => {
                 this.taskComp = data;
                 this.fetchTasks(this.$props.filter);
             });
         }
-    }
+    },
+    components: { DropdownButton }
 }
 </script>
 

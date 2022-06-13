@@ -6,6 +6,7 @@ export const mutation = {
 	SET_TASK: 'SET_TASK',
 	SET_USERS: 'SET_USERS',
 	SET_ALL_USERS: 'SET_ALL_USERS',
+	SET_CURRENT_USER: 'SET_CURRENT_USER',
 	SET_COMMENTS: 'SET_COMMENTS',
 	SET_FILTER: 'SET_FILTER',
 	SET_ACTIVE_TAB: 'SET_ACTIVE_TAB',
@@ -20,6 +21,7 @@ export default {
 		allUsers: [],
 		users: [],
 		usersTotal: 0,
+		user: {},
 		comments: [],
 		filters: {},
 		activeTab: ''
@@ -33,6 +35,7 @@ export default {
 		allUsers: state => state.allUsers,
 		users: state => state.users,
 		usersTotal: state => state.usersTotal,
+		user: state => state.user,
 		comments: state => state.comments,
 		activeTab: state => state.activeTab,
 		filters: state => state.filters,
@@ -56,6 +59,9 @@ export default {
 		[mutation.SET_USERS]: (state, data) => {
 			state.users = data || []
 			state.usersTotal = data.total
+		},
+		[mutation.SET_CURRENT_USER]: (state, data) => {
+			state.user = data
 		},
 		[mutation.SET_COMMENTS]: (state, data) => {
 			state.comments = data || []
@@ -112,6 +118,9 @@ export default {
 			})
 		},
 
+		setCurrentUser: ({ dispatch, commit, getters }, data) => {
+			commit(mutation.SET_CURRENT_USER, data)
+		},
 		setActiveTab: ({ dispatch, commit }, value) => {
 			commit(mutation.SET_ACTIVE_TAB, value)
 		},

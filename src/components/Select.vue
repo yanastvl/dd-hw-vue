@@ -1,5 +1,5 @@
 <template>
-    <div class="task-inner"> 
+    <div> 
         <p class="task-label">{{ label }}</p>
             <select class="task-select input__default capet-down" 
                 :value="value"

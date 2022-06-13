@@ -13,20 +13,26 @@
             <div class="task-window">
             <div class="user-col">
 
-            <Select label="Исполнитель" v-model="task.assignedId" :users="allUsers"></Select>
+            <div class="task-inner">
+                <Select label="Исполнитель" v-model="task.assignedId" :users="allUsers"></Select>
+            </div>
 
-			<Select label="Тип запроса" v-model="task.type" :optionsArray="[
-				{text: 'Задача', value: 'task'},
-				{text: 'Ошибка', value: 'bug'},
-			]">
-			</Select>
+            <div class="task-inner">
+                <Select label="Тип запроса" v-model="task.type" :optionsArray="[
+                    {text: 'Задача', value: 'task'},
+                    {text: 'Ошибка', value: 'bug'},
+                ]">
+                </Select>
+            </div>
 
-			<Select label="Приоритет" v-model="task.rank" :optionsArray="[
-				{text: 'Низкий', value: 'low'},
-				{text: 'Средний', value: 'medium'},
-				{text: 'Высокий', value: 'high'}
-			]">
-			</Select>
+            <div class="task-inner">
+                <Select label="Приоритет" v-model="task.rank" :optionsArray="[
+                    {text: 'Низкий', value: 'low'},
+                    {text: 'Средний', value: 'medium'},
+                    {text: 'Высокий', value: 'high'}
+                ]">
+                </Select>
+            </div>
 
 
             </div>
@@ -37,7 +43,7 @@
             <p class="task-label">Название</p>
 
             <div class="dropdown__input">
-                    <input 
+                    <Input 
                         :class="`dropdown__input-input ${!task.title ? 'input__empty' : 'input__default'}`"
                         type="text" 
                         placeholder="Название задачи"
@@ -50,12 +56,12 @@
 
                 <div class="task-inner"> 
                     <p class="task-label">Описание</p>
-                        <textarea 
+                        <Textarea
                             :class="`edit__textarea ${!task.description ? 'input__empty' : 'input__default'}`"
                             name="description"
                             v-model="task.description"
                             required
-                        ></textarea>
+                        ></Textarea>
                 </div>
             </div>
                 <div class="comment-col">
@@ -69,11 +75,11 @@
 </template>
 
 <script>
-import moment from "moment";
 import { mapGetters, mapActions } from 'vuex';
-import api from '@/api'
 import Button from "../components/Button.vue";
 import Select from "../components/Select.vue";
+import Input from "../components/Input.vue";
+import Textarea from "../components/Textarea.vue";
 
 export default {
 	data() {
@@ -102,7 +108,7 @@ export default {
     },
     created() {
         if (this.$props.id) {
-            api.Tasks.getTask(this.$props.id).then(({data}) => {
+            this.$api.Tasks.getTask(this.$props.id).then(({data}) => {
                 this.task = data;
             });
         }
@@ -120,18 +126,18 @@ export default {
                 description: this.task.description,
                 type: this.task.type,
                 rank: this.task.rank,
-                dateOfCreation: moment(new Date()).format('YYYY-MM-DDTHH:mm:ss'),
-                dateOfUpdate: moment(new Date()).format('YYYY-MM-DDTHH:mm:ss'),
+                dateOfCreation: new Date().toISOString(),
+                dateOfUpdate: new Date().toISOString(),
                 status: "opened",
                 timeInMinutes: 0,
             }
 
-            api.Tasks.createOrEditTask(data).then(({data}) => {
+            this.$api.Tasks.createOrEditTask(data).then(({data}) => {
                 this.$router.push({name: "TaskView", params: {id: data.id}});
             })
         }
     },
-	components: { Button, Select }
+	components: { Button, Select, Input, Textarea }
 }
 </script>
 

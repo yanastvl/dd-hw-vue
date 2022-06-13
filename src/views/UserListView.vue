@@ -13,7 +13,7 @@
                             </div>
                         </router-link>
                 </div>
-                <Paging :allObjectsNum="usersTotal" @currentPage="currentPage"/>
+                <Paging :allObjectsNum="usersTotal" @setCurrentPage="setCurrentPage" :pageFromFilter="currentPage"/>
             </div>
         </section>
 
@@ -38,6 +38,14 @@ export default {
     },
 	computed: {
 		...mapGetters(['users', 'usersTotal']),
+		currentPage: {
+			get() {
+				return this.filter.page + 1
+			},
+			set(page) {
+				this.filter.page = page - 1
+			}
+		},
 	},
 	mounted() {
 		this.filter.limit = 10;
@@ -45,8 +53,8 @@ export default {
     },
 	methods: {
 		...mapActions(['setLoading', 'fetchUsers']),
-		currentPage(page) {
-			this.filter.page = page - 1;
+		setCurrentPage(page) {
+			this.currentPage = page;
 			this.fetchUsers(this.filter);
 		}
 	},
