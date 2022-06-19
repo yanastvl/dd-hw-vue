@@ -1,6 +1,6 @@
 <template>
 	<div>
-		Страница не найдена
+		<p>Страница не найдена</p>
         <router-link :to="taskList">Перейти на главную</router-link>
 	</div>
 </template>

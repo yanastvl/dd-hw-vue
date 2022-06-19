@@ -107,8 +107,8 @@ export default {
         }
     },
     created() {
-        if (this.$props.id) {
-            this.$api.Tasks.getTask(this.$props.id).then(({data}) => {
+        if (this.id) {
+            this.$api.Tasks.getTask(this.id).then(({data}) => {
                 this.task = data;
             });
         }

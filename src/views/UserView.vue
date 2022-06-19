@@ -3,7 +3,7 @@
     <CardHeader>
         <h3 class="header-caption">{{ user.username }}</h3>
         <div class="caption__button-inner">
-            <router-link :to="{ name: 'TaskAddOrEditView', query: { userId: user.id }}">
+            <router-link :to="taskAddOrEditView">
 				<Button class="default-button space">Добавить задачу</Button>
 			</router-link>
 				<Button v-if="isCurrentUser" class="primary-button" @click="toggleModal">Редактировать</Button>
@@ -111,13 +111,16 @@ export default {
         }
     },
     props: ['id'],
-    mounted() {
+    created() {
         this.setActiveTab(this.$route.fullPath).then(() => {
             this.getUser();
         });
     },
     computed: {
 		...mapGetters(['tasks', 'tasksTotal', 'filters', 'activeTab']),
+        taskAddOrEditView() {
+            return { name: 'TaskAddOrEditView', query: { userId: this.user.id }}
+        },
         isCurrentUser() {
             return this.user.id === this.currentUser.id;
         },

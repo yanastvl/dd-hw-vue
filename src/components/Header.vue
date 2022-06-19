@@ -6,8 +6,8 @@
             </router-link>
 
             <div :class="`header-nav ${!user && 'hidden'}`">
-                <router-link :to="taskList" :class="`nav__link ${isLinkActive(taskList) && 'nav__link-active'}`">Задачи</router-link>
-                <router-link :to="userList" :class="`nav__link ${isLinkActive(userList) && 'nav__link-active'}`">Пользователи</router-link>
+                <router-link :to="taskList" active-class="nav__link-active" class="nav__link">Задачи</router-link>
+                <router-link :to="userList" active-class="nav__link-active" class="nav__link">Пользователи</router-link>
             </div>
 
             <div :class="`user-profile ${!user && 'hidden'}`">
@@ -51,9 +51,6 @@ export default {
     },
     computed: {
       ...mapGetters(['user']),
-      isLinkActive() {
-        return path => this.$route.name === path.name
-      }
     },
     methods: {
       ...mapActions(['setCurrentUser']),

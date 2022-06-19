@@ -3,19 +3,19 @@
       <div class="pagination-inner">
           <button 
             @click="prevPage"
-            :class="`pagination__back pagination__back--${isPagesEqual(currentPage, 1) ? 'disabled' : 'default'}`"
+            :class="`pagination__back pagination__back--${getButtonClass(currentPage, 1)}`"
             :disabled="isPagesEqual(currentPage, 1)"
             >Назад
          </button>
             <button 
                 @click="setPage(page)"
                 v-for="page in pagesArray" :key="page"
-                :class="`pagination__number pagination__number--${isPagesEqual(currentPage, page) ? 'stay' : 'default'}`"
+                :class="`pagination__number pagination__number--${getNumberClass(currentPage, page)}`"
                 >{{ page }}
             </button>
           <button 
             @click="nextPage"
-            :class="`pagination__forward pagination__forward--${isPagesEqual(pagesNum, currentPage) ? 'disabled' : 'default'}`"
+            :class="`pagination__forward pagination__forward--${getButtonClass(pagesNum, currentPage)}`"
             :disabled="isPagesEqual(pagesNum, currentPage)"
             >Вперед
          </button>
@@ -54,8 +54,16 @@ export default {
         },
         isPagesEqual() {
             return (page1, page2) => page1 === page2
+        },
+         getButtonClass() {
+            return (page1, page2) => this.isPagesEqual(page1, page2) ? 'disabled' : 'default'
+        },
+        getNumberClass() {
+            return (page1, page2) => this.isPagesEqual(page1, page2) ? 'stay' : 'default'
         }
+
     },
+
     methods: {
         setPage(page) {
             this.currentPage = page;
